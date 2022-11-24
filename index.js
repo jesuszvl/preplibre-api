@@ -1,46 +1,36 @@
 const express = require("express");
-const morgan = require("morgan");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
+const dbConnect = process.env.DB_CONNECT;
 
-//Configuraciones
-app.set("port", port);
-app.set("json spaces", 2);
+// connect to db
+mongoose.connect(
+  dbConnect,
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  },
+  () => console.log("connected to db")
+);
 
-//Middleware
-app.use(morgan("dev"));
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// import routes
+const authRoutes = require("./routes/auth");
+const dashboardRoutes = require("./routes/dashboard");
+const partidosRoutes = require("./routes/partidos");
+const municipiosRoutes = require("./routes/municipios");
+const verifyToken = require("./routes/validate-token");
 
-const partidos = [
-  { nombre: "Partido Accion Nacional", siglas: "PAN" },
-  { nombre: "Partido Revolucionario Institucional", siglas: "PRI" },
-  { nombre: "Movimiento Ciudadano", siglas: "MC" },
-  { nombre: "Movimiento Regeneracion Nacional", siglas: "MORENA" },
-  { nombre: "Partido del Trabajo", siglas: "PT" },
-];
+app.use(express.json()); // for body parser
+app.use("/api/user", authRoutes);
 
-const municipios = [
-  { nombre: "Mexicali", siglas: "MXL" },
-  { nombre: "Tijuana", siglas: "TIJ" },
-  { nombre: "Ensenada", siglas: "ENS" },
-  { nombre: "Rosarito", siglas: "ROS" },
-];
-
-//Requests
-app.get("/", (req, res) => {
-  res.json({
-    Title: "Hola mundo",
-  });
-});
-
-app.get("/partidos", (req, res) => {
-  res.json(partidos);
-});
-
-app.get("/municipios", (req, res) => {
-  res.json(municipios);
-});
+// this route is protected with token
+app.use("/api/dashboard", verifyToken, dashboardRoutes);
+app.use("/api/partidos", verifyToken, partidosRoutes);
+app.use("/api/municipios", verifyToken, municipiosRoutes);
 
 //Iniciando el servidor
 app.listen(port, () => {
