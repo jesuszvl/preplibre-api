@@ -32,6 +32,10 @@ app.use("/api/dashboard", verifyToken, dashboardRoutes);
 app.use("/api/partidos", verifyToken, partidosRoutes);
 app.use("/api/municipios", verifyToken, municipiosRoutes);
 
+app.get("/", (req, res) => {
+  res.send("openprep");
+});
+
 //Iniciando el servidor
 app.listen(port, () => {
   console.log(`Server Started at ${port}`);
