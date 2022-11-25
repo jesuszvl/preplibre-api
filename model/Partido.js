@@ -12,6 +12,10 @@ const partidoSchema = new mongoose.Schema({
     min: 1,
     max: 255,
   },
+  logotipo: {
+    type: String,
+    required: [true, "Image field is required."],
+  },
   date: {
     type: Date,
     default: Date.now,

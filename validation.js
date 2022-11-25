@@ -20,6 +20,7 @@ const partidoValidation = (data) => {
   const schema = Joi.object({
     nombre: Joi.string().max(255).required(),
     siglas: Joi.string().min(1).max(255).required(),
+    logotipo: Joi.string(),
   });
   return schema.validate(data);
 };
