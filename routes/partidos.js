@@ -1,4 +1,6 @@
 const express = require("express");
+const multer = require("multer");
+
 const Partido = require("../model/Partido");
 
 const router = express.Router();
@@ -35,7 +37,7 @@ router.post("/", async (req, res) => {
 
   try {
     const savedPartido = await partido.save();
-    res.json({ error: null, data: partido._id });
+    res.json({ error: null, data: savedPartido._id });
   } catch (error) {
     res.status(400).json({ error });
   }
