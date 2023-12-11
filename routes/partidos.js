@@ -39,7 +39,7 @@ const upload = multer({
   fileFilter: (req, file, cb) => {
     checkFileType(file, cb);
   },
-});
+})
 
 router.get("/", async (req, res) => {
   const partidos = await Partido.find();
@@ -50,7 +50,7 @@ router.get("/", async (req, res) => {
   });
 });
 
-router.post("/", upload.single("image"), async (req, res) => {
+router.post("/", upload.single("logotipo"), async (req, res) => {
   //validate
   const { error } = partidoValidation(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
