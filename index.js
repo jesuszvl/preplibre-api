@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 const dbConnect = process.env.DB_CONNECT;
 
 // connect to db
+mongoose.set('strictQuery', false);
 mongoose.connect(
   dbConnect,
   {
