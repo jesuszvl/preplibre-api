@@ -1,74 +1,72 @@
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../model/User");
+const express = require('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const User = require('../model/User')
 
-const router = express.Router();
+const router = express.Router()
 
 // validation
-const { registerValidation, loginValidation } = require("../validation");
+const { registerValidation, loginValidation } = require('../validation')
 
-router.post("/register", async (req, res) => {
+router.post('/register', async (req, res) => {
   // validate the user
-  const { error } = registerValidation(req.body);
+  const { error } = registerValidation(req.body)
 
   if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+    return res.status(400).json({ error: error.details[0].message })
   }
 
-  //check for existing email
-  const isEmailExist = await User.findOne({ email: req.body.email });
-  if (isEmailExist)
-    return res.status(400).json({ error: "Email already exists" });
+  // check for existing email
+  const isEmailExist = await User.findOne({ email: req.body.email })
+  if (isEmailExist) { return res.status(400).json({ error: 'Email already exists' }) }
 
   // hash the password
-  const salt = await bcrypt.genSalt(10);
-  const password = await bcrypt.hash(req.body.password, salt);
+  const salt = await bcrypt.genSalt(10)
+  const password = await bcrypt.hash(req.body.password, salt)
 
   const user = new User({
     name: req.body.name,
     email: req.body.email,
-    password, // hashed password
-  });
+    password // hashed password
+  })
 
   try {
-    const savedUser = await user.save();
-    res.json({ error: null, data: savedUser._id });
+    const savedUser = await user.save()
+    res.json({ error: null, data: savedUser._id })
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(400).json({ error })
   }
-});
+})
 
-router.post("/login", async (req, res) => {
+router.post('/login', async (req, res) => {
   // validate the user
-  const { error } = loginValidation(req.body);
+  const { error } = loginValidation(req.body)
   // throw validation errors
-  if (error) return res.status(400).json({ error: error.details[0].message });
+  if (error) return res.status(400).json({ error: error.details[0].message })
 
-  const user = await User.findOne({ email: req.body.email });
+  const user = await User.findOne({ email: req.body.email })
   // throw error when email is wrong
-  if (!user) return res.status(400).json({ error: "Email is wrong" });
+  if (!user) return res.status(400).json({ error: 'Email is wrong' })
   // check for password correctness
-  const validPassword = await bcrypt.compare(req.body.password, user.password);
-  if (!validPassword)
-    return res.status(400).json({ error: "Password is wrong" });
+  const validPassword = await bcrypt.compare(req.body.password, user.password)
+  if (!validPassword) { return res.status(400).json({ error: 'Password is wrong' }) }
 
   // create token
   const token = jwt.sign(
     // payload data
     {
       name: user.name,
-      id: user._id,
+      id: user._id
     },
     process.env.TOKEN_SECRET
-  );
+  )
 
-  res.header("auth-token", token).json({
+  res.header('auth-token', token).json({
     error: null,
     data: {
-      token,
-    },
-  });
-});
+      token
+    }
+  })
+})
 
-module.exports = router;
+module.exports = router
