@@ -27,11 +27,11 @@ const verifyToken = require("./routes/validate-token");
 
 app.use(express.json()); // for body parser
 
-app.use("/api/user", authRoutes);
+app.use("/user", authRoutes);
 // this route is protected with token
-app.use("/api/dashboard", verifyToken, dashboardRoutes);
-app.use("/api/partidos", verifyToken, partidosRoutes);
-app.use("/api/municipios", verifyToken, municipiosRoutes);
+app.use("/dashboard", verifyToken, dashboardRoutes);
+app.use("/partidos", verifyToken, partidosRoutes);
+app.use("/municipios", verifyToken, municipiosRoutes);
 
 app.get("/", (req, res) => {
   res.send("openprep");
