@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const { S3Client, PutObjectCommand, ListObjectsV2Command} = require("@aws-sdk/client-s3"); 
 
 const Partido = require("../model/Partido");
 
@@ -26,12 +27,8 @@ const checkFileType = function (file, cb) {
 };
 
 //Setting storage engine
-const storageEngine = multer.diskStorage({
-  destination: "./tmp/images",
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}--${file.originalname}`);
-  },
-});
+const storageEngine = multer.memoryStorage();
+
 //initializing multer
 const upload = multer({
   storage: storageEngine,
@@ -55,7 +52,33 @@ router.post("/", upload.single("logotipo"), async (req, res) => {
   const { error } = partidoValidation(req.body);
   if (error) return res.status(400).json({ error: error.details[0].message });
 
-  const logotipo = req.file ? req.file.path : "";
+  // Upload file to CloudFlare R2
+  const file = req.file;
+  const uniqueFilename = `${Date.now()}--${file.originalname}`;
+
+  const s3 = new S3Client({
+    region: "auto",
+    endpoint: `https://${process.env.CF_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.CF_ACCESS_KEY_ID,
+      secretAccessKey: process.env.CF_SECRET_ACCESS_KEY,
+    },
+  });
+
+  const putCommand = new PutObjectCommand({
+    Bucket: "preplibre-partidos",
+    Key: uniqueFilename,
+    Body: file.buffer,
+    ContentType: file.mimetype
+  });
+
+  try {
+    await s3.send(putCommand);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to upload image to Cloudflare R2' });
+  }
+
+  const logotipo = `${process.env.CF_BUCKET_URL}/${uniqueFilename}`;
 
   const partido = new Partido({
     nombre: req.body.nombre,
