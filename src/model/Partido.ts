@@ -1,11 +1,5 @@
 import { Schema, model } from 'mongoose'
-
-interface IPartido {
-  nombre: string
-  siglas: string
-  logotipo: string
-  date: Date
-}
+import { IPartido } from '../types'
 
 const partidoSchema = new Schema<IPartido>({
   nombre: {

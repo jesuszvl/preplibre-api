@@ -1,18 +1,7 @@
 import Joi, { Schema, ValidationResult } from 'joi'
+import { PartidoData, UserLoginData, UserRegisterData } from '../types'
 
-export interface UserData {
-  name?: string
-  email: string
-  password: string
-}
-
-export interface PartidoData {
-  nombre?: string
-  siglas?: string
-  logotipo?: string
-}
-
-const registerValidation = (data: UserData): ValidationResult => {
+const registerValidation = (data: UserRegisterData): ValidationResult => {
   const schema: Schema = Joi.object({
     name: Joi.string().min(6).max(255).required(),
     email: Joi.string().min(6).max(255).required().email(),
@@ -21,7 +10,7 @@ const registerValidation = (data: UserData): ValidationResult => {
   return schema.validate(data)
 }
 
-const loginValidation = (data: UserData): ValidationResult => {
+const loginValidation = (data: UserLoginData): ValidationResult => {
   const schema: Schema = Joi.object({
     email: Joi.string().min(6).max(255).required().email(),
     password: Joi.string().min(6).max(1024).required()

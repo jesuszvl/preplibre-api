@@ -3,20 +3,24 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 
 import validator from '../utils/validation'
-import User from '../model/user'
+import User from '../model/User'
+import { IUser } from '../types'
 
 const router = express.Router()
 
 // eslint-disable-next-line @typescript-eslint/no-misused-promises
 router.post('/login', async (req: Request, res: Response) => {
   const { error } = validator.loginValidation(req.body)
-  // throw validation errors
   if (error != null) return res.status(400).json({ error: error.details[0].message })
 
-  const user = await User.findOne({ email: req.body.email })
-  // throw error when email is wrong
-  if (user == null) return res.status(400).json({ error: 'Email is wrong' })
-  // check for password correctness
+  console.log(await User.find({}))
+  console.log(req.body.email)
+  console.log(await User.findOne({ email: req.body.email }))
+  const user: IUser | null = await User.findOne({ email: req.body.email })
+  console.log(user)
+
+  if (user === null) return res.status(400).json({ error: 'Email is wrong' })
+
   const validPassword = await bcrypt.compare(req.body.password, user.password)
   if (!validPassword) { return res.status(400).json({ error: 'Password is wrong' }) }
 
