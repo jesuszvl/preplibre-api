@@ -6,9 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev src/index.ts",
-    "tsc": "tsc",
+    "build": "tsc",
     "serve": "node dist/index.js",
-    "lint": "ts-standard"
+    "lint": "ts-standard",
+    "vercel-build": "echo hello"
   },
   "repository": {
     "type": "git",
